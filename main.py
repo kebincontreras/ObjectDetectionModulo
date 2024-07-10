@@ -8,6 +8,11 @@ import torchvision.transforms as transforms
 import torch
 from utils import *
 #from utils import flip_odd_lines, modulo, center_modulo, unmodulo, hard_thresholding, stripe_estimation, recons
+from utils import modulo
+import cv2
+
+import matplotlib.pyplot as plt
+
 
 def process_image(image, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical):
 
@@ -17,22 +22,31 @@ def process_image(image, model_id, image_size, conf_threshold, correction, sat_f
     original_image = original_image * 255.0
     original_image = original_image.astype(np.uint8)
 
+    # scaling factor
+    scaling = 1.0
+    original_image = cv2.resize(original_image, (0, 0), fx=scaling, fy=scaling)
 
-    blurred_image = apply_blur(original_image, kernel_size)
-    clipped_image = clip_image(blurred_image / 255.0, correction, sat_factor) 
-    wrapped_image = wrap_image(blurred_image / 255.0, correction, sat_factor) 
+
+    blurred_image = apply_blur(original_image / 255.0, kernel_size)
+    clipped_image = clip_image(blurred_image, correction, sat_factor) 
+
+    img_tensor = torch.tensor(blurred_image, dtype=torch.float32 ).permute(2, 0, 1).unsqueeze(0)
+    img_tensor = modulo( img_tensor * sat_factor, L=1.0)
+
+    wrapped_image = img_tensor.squeeze(0).permute(1, 2, 0).numpy()
+    wrapped_image = (wrapped_image*255).astype(np.uint8)
 
     original_annotated, original_detections = yolov10_inference(original_image, model_id, image_size, conf_threshold)
     clipped_annotated, clipped_detections = yolov10_inference((clipped_image*255.0).astype(np.uint8), model_id, image_size, conf_threshold)
-    wrapped_annotated, wrapped_detections = yolov10_inference((wrapped_image*255.0).astype(np.uint8), model_id, image_size, conf_threshold)
+    wrapped_annotated, wrapped_detections = yolov10_inference(wrapped_image, model_id, image_size, conf_threshold)
 
-    # img_tensor = transforms.ToTensor()(wrapped_image).unsqueeze(0)
-    img_tensor = torch.tensor(wrapped_image, dtype=torch.float32 ).permute(2, 0, 1).unsqueeze(0)
     # Assuming `recons` is a function in `utils.py`
     recon_image = recons(img_tensor, DO=1, L=1.0, vertical=(vertical == "True"), t=t)
     recon_image_pil = transforms.ToPILImage()(recon_image.squeeze(0))
-    recon_image_np = np.array(recon_image_pil) * 255.0
-    recon_annotated, recon_detections = yolov10_inference(recon_image_np.astype(np.uint8), model_id, image_size, conf_threshold)
+    recon_image_np = np.array(recon_image_pil).astype(np.uint8)
+
+
+    recon_annotated, recon_detections = yolov10_inference(recon_image_np, model_id, image_size, conf_threshold)
 
     metrics_clip = calculate_detection_metrics(original_detections, clipped_detections)
     metrics_wrap = calculate_detection_metrics(original_detections, wrapped_detections)

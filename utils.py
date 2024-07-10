@@ -87,8 +87,6 @@ def stripe_estimation(psi, t=0.15):
 
 def recons(m_t, DO=1, L=1.0, vertical=False, t=0.3):
 
-    print("MODULO STAS", m_t.max(), m_t.min(), m_t.shape)
-
     if vertical:
         m_t = m_t.permute(0, 1, 3, 2)
 
@@ -105,7 +103,7 @@ def recons(m_t, DO=1, L=1.0, vertical=False, t=0.3):
     x_est = bl
     
     x_est = sequency_mat(x_est, shape)   
-    x_est = x_est   + m_t
+    x_est = x_est + m_t
 
     if vertical:
         x_est = x_est.permute(0, 1, 3, 2)
@@ -113,8 +111,8 @@ def recons(m_t, DO=1, L=1.0, vertical=False, t=0.3):
     stripes = stripe_estimation(x_est, t=t)    
     x_est = x_est - stripes
 
-    #if vertical:
+    # if vertical:
     #     x_est = x_est.permute(0, 1, 3, 2)
-    #x_est = x_est / x_est.max()
-    #x_est = 1 - x_est
+    x_est = x_est - x_est.min()
+    x_est = x_est / x_est.max()
     return x_est 
