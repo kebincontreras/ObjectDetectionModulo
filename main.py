@@ -58,10 +58,10 @@ def app():
                 process_button = gr.Button("Process Image")
 
             with gr.Column():
-                output_original = gr.Image(label="Original Image with Annotations")
-                output_clip = gr.Image(label="Clipped Image with Annotations")
-                output_wrap = gr.Image(label="Wrapped Image with Annotations")
-                output_recons = gr.Image(label="Reconstructed Image with Annotations")
+                output_original = gr.Image(label="Original + blur")
+                output_clip = gr.Image(label="Clipped ")
+                output_wrap = gr.Image(label="Wrapped")
+                output_recons = gr.Image(label="Reconstructed")
                 metrics_clip = gr.Textbox(label="Metrics for Clipped Image")
                 metrics_wrap = gr.Textbox(label="Metrics for Wrapped Image")
                 metrics_recons = gr.Textbox(label="Metrics for Reconstructed Image")

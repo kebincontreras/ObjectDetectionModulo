@@ -113,7 +113,7 @@ def recons(m_t, DO=1, L=1.0, vertical=False, t=0.3):
     stripes = stripe_estimation(x_est, t=t)    
     x_est = x_est - stripes
 
-    # if vertical:
+    #if vertical:
     #     x_est = x_est.permute(0, 1, 3, 2)
     #x_est = x_est / x_est.max()
     #x_est = 1 - x_est
