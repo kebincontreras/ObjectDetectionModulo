@@ -49,12 +49,12 @@ def app():
                 model_id = gr.Dropdown(label="Model", choices=["yolov10n", "yolov10s", "yolov10m", "yolov10b", "yolov10l", "yolov10x"], value="yolov10m")
                 image_size = gr.Slider(label="Image Size", minimum=320, maximum=1280, step=32, value=640)
                 conf_threshold = gr.Slider(label="Confidence Threshold", minimum=0.0, maximum=1.0, step=0.05, value=0.85)
-                correction = gr.Slider(label="Correction Factor", minimum=0, maximum=1.0, step=0.1, value=0.4)
-                sat_factor = gr.Slider(label="Saturation Factor", minimum=1.0, maximum=5.0, step=0.1, value=3.0)
+                correction = gr.Slider(label="Correction Factor", minimum=0, maximum=1.0, step=0.1, value=1.0)
+                sat_factor = gr.Slider(label="Saturation Factor", minimum=1.0, maximum=5.0, step=0.1, value=2.0)
                 kernel_size = gr.Slider(label="Blur Kernel Size", minimum=1, maximum=7, step=1, value=1)
                 DO = gr.Radio(label="DO", choices=["1", "2"], value="1")
                 t = gr.Slider(label="t", minimum=0.0, maximum=1.0, step=0.1, value=0.5)
-                vertical = gr.Radio(label="Vertical", choices=["True", "False"], value="False")
+                vertical = gr.Radio(label="Vertical", choices=["True", "False"], value="True")
                 process_button = gr.Button("Process Image")
 
             with gr.Column():
