@@ -65,7 +65,7 @@ def app():
                 conf_threshold = gr.Slider(label="Confidence Threshold", minimum=0.0, maximum=1.0, step=0.05, value=0.85)
                 correction = gr.Slider(label="Correction Factor", minimum=0, maximum=1.0, step=0.1, value=1.0)
                 sat_factor = gr.Slider(label="Saturation Factor", minimum=1.0, maximum=5.0, step=0.1, value=2.0)
-                kernel_size = gr.Slider(label="Blur Kernel Size", minimum=1, maximum=7, step=1, value=1)
+                kernel_size = gr.Slider(label="Blur Kernel Size", minimum=1, maximum=7, step=1, value=7)
                 DO = gr.Radio(label="DO", choices=["1", "2"], value="1")
                 t = gr.Slider(label="t", minimum=0.0, maximum=1.0, step=0.1, value=0.5)
                 vertical = gr.Radio(label="Vertical", choices=["True", "False"], value="True")

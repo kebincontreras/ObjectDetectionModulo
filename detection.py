@@ -44,3 +44,36 @@ def calculate_detection_metrics(detections_true, detections_pred):
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
     average_iou = sum(ious) / len(ious) if ious else 0
     return {"Precision": precision, "Recall": recall, "F1-Score": f1_score, "IOU": average_iou}
+
+
+
+
+
+
+
+
+import os
+
+def save_detections(detections, output_dir):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    with open(os.path.join(output_dir, 'detections.txt'), 'w') as file:
+        for detection in detections:
+            file.write(f"{detection['class']},{detection['conf']},{','.join(map(str, detection['coords']))}\n")
+
+def yolov10_inference_1(image, model_id, image_size, conf_threshold, output_dir):
+    model = YOLOv10.from_pretrained(f'jameslahm/{model_id}')
+    results = model.predict(source=image, imgsz=image_size, conf=conf_threshold)
+    detections = []
+    if results and len(results) > 0:
+        for result in results:
+            for box in result.boxes:
+                detections.append({
+                    "coords": box.xyxy.cpu().numpy(),
+                    "class": result.names[int(box.cls.cpu())],
+                    "conf": box.conf.cpu().numpy()
+                })
+    save_detections(detections, output_dir)
+    return results[0].plot() if results and len(results) > 0 else image
+
+
