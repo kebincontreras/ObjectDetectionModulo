@@ -1,7 +1,7 @@
 import gradio as gr
 from image_processing import apply_blur, clip_image, wrap_image
 from detection import *
-from detection import yolov10_inference, calculate_detection_metrics, yolov10_inference_1, save_detections
+from detection import yolov10_inference, calculate_detection_metrics, save_detections, read_kitti_annotations
 from PIL import Image
 import numpy as np
 import torchvision.transforms as transforms
@@ -10,7 +10,6 @@ from utils import *
 #from utils import flip_odd_lines, modulo, center_modulo, unmodulo, hard_thresholding, stripe_estimation, recons
 from utils import modulo
 import cv2
-
 import matplotlib.pyplot as plt
 
 
@@ -48,14 +47,21 @@ def process_image(image, model_id, image_size, conf_threshold, correction, sat_f
     recon_image = recons(img_tensor, DO=1, L=1.0, vertical=(vertical == "True"), t=t)
     recon_image_pil = transforms.ToPILImage()(recon_image.squeeze(0))
     recon_image_np = np.array(recon_image_pil).astype(np.uint8)
-
-
     recon_annotated, recon_detections = yolov10_inference(recon_image_np, model_id, image_size, conf_threshold)
 
+    #save_detections(clipped_detections, url_1)
+    save_detections(clipped_detections, url_1, 'cli_detections.txt')
 
-    yolov10_inference_1(original_image, model_id, image_size, conf_threshold, url_1)
-    yolov10_inference_1(clipped_image, model_id, image_size, conf_threshold, url_1)
-    yolov10_inference_1(wrapped_image, model_id, image_size, conf_threshold, url_1)
+    #save_detections(wrapped_detections, url_1)
+    save_detections(wrapped_detections, url_1, 'wrap_detections.txt')
+    
+    #save_detections(recon_detections, url_1)
+    save_detections(recon_detections, url_1, 'reconstruction_detections.txt')
+
+
+    #yolov10_inference_1(original_image, model_id, image_size, conf_threshold, url_1)
+    #yolov10_inference_1(clipped_image, model_id, image_size, conf_threshold, url_1)
+    #yolov10_inference_1(wrapped_image, model_id, image_size, conf_threshold, url_1)
 
     metrics_clip = calculate_detection_metrics(original_detections, clipped_detections)
     metrics_wrap = calculate_detection_metrics(original_detections, wrapped_detections)

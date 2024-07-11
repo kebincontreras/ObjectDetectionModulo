@@ -1,0 +1,23 @@
+import os
+
+def extract_classes_from_txt(directory, start, end, output_file):
+    classes = set()
+    for i in range(start, end + 1):
+        file_path = os.path.join(directory, f"{i:06}.txt")
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as file:
+                for line in file:
+                    class_label = line.split()[0]
+                    classes.add(class_label)
+        else:
+            print(f"File {file_path} does not exist.")
+    
+    # Save the unique classes to a text file
+    with open(output_file, 'w') as f:
+        for class_label in sorted(classes):
+            f.write(class_label + '\n')
+    print(f"All unique classes have been saved to {output_file}.")
+
+# Example usage
+directory = r"C:\Users\USUARIO\Documents\GitHub\Yolov10\kitti\label_2"
+extract_classes_from_txt(directory, 0, 7480, "unique_classes.txt")
