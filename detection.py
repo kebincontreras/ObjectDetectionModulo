@@ -162,20 +162,19 @@ def calculate_detection_metrics_1(detections_true, detections_pred):
 import torch
 
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def yolov10_inference_2(image, model_id, image_size, conf_threshold):
+    model = YOLOv10.from_pretrained(f'jameslahm/{model_id}').to(device)
+    results = model.predict(source=image, imgsz=image_size, conf=conf_threshold)
+    detections = []
+    if results and len(results) > 0:
+        for result in results:
+            for box in result.boxes:
+                detections.append({
+                    "bbox": box.xyxy.cpu().numpy().tolist(),
+                    "class": result.names[int(box.cls.cpu())]
+                })
+    return results[0].plot() if results and len(results) > 0 else image, detections
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    # Asume que tienes una función para cargar el modelo
-    model = load_model(model_id).to(device)
-    image_tensor = transforms.ToTensor()(image).unsqueeze(0).to(device)
-    model.eval()
-    with torch.no_grad():
-        detections = model(image_tensor)
-    # Procesa las detecciones
-    detections = detections.cpu().numpy()  # Mover las detecciones de vuelta a la CPU para el procesamiento posterior
-    annotated_image = draw_detections(image, detections)
-    return annotated_image, detections
-
-# Asegúrate de que otras funciones también usan el dispositivo correcto
 
