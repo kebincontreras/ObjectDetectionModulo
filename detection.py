@@ -151,3 +151,31 @@ def calculate_detection_metrics_1(detections_true, detections_pred):
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
     average_iou = sum(ious) / len(ious) if ious else 0
     return {"Precision": precision, "Recall": recall, "F1-Score": f1_score, "IOU": average_iou}
+
+
+
+
+
+
+
+
+import torch
+
+
+
+def yolov10_inference_2(image, model_id, image_size, conf_threshold):
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # Asume que tienes una función para cargar el modelo
+    model = load_model(model_id).to(device)
+    image_tensor = transforms.ToTensor()(image).unsqueeze(0).to(device)
+    model.eval()
+    with torch.no_grad():
+        detections = model(image_tensor)
+    # Procesa las detecciones
+    detections = detections.cpu().numpy()  # Mover las detecciones de vuelta a la CPU para el procesamiento posterior
+    annotated_image = draw_detections(image, detections)
+    return annotated_image, detections
+
+# Asegúrate de que otras funciones también usan el dispositivo correcto
+
