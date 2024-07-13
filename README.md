@@ -8,8 +8,8 @@ python -m venv detection_object
 detection_object\Scripts\activate
 
 # Instalar dependencias 
-pip install -r requirements.txt
+# for PowerShell
 
-# Instalar torch con soporte cuda
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+.\requirements.bat
+
 
