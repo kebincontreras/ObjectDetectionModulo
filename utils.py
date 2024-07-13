@@ -30,16 +30,18 @@ def center_modulo(x, L):
 
 
 def unmodulo(psi):
+    device = psi.device  # Detectar el dispositivo de psi
 
     psi = torch.nn.functional.pad(psi, (1,1), mode='constant', value=0)
     psi = torch.diff(psi, 1)
     psi = dct.dct(psi, norm='ortho')
     N = psi.shape[-1]
-    k = torch.arange(0, N)
+    k = torch.arange(0, N, device=device)
     denom = 2*( torch.cos(  torch.pi * k / N  )  -  1  )
     denom[0] = 1.0
     denom = denom.unsqueeze(0).unsqueeze(0) + 1e-7
-    psi     = psi / denom   
+    denom = denom.to(device)
+    psi = psi / denom
     psi[..., 0] = 0.0
     psi = dct.idct(psi, norm='ortho')
     return psi
@@ -52,6 +54,7 @@ def hard_thresholding(x, t):
 
 
 def stripe_estimation(psi, t=0.15):
+    device = psi.device  # Detectar el dispositivo de psi
 
     dx = torch.diff(psi, 1, dim=-1)
     dy = torch.diff(psi, 1, dim=-2)
@@ -62,30 +65,25 @@ def stripe_estimation(psi, t=0.15):
     dx = F.pad(dx, (1, 0, 1, 0))
     dy = F.pad(dy, (0, 1, 0, 1))
 
-
     rho = torch.diff(dx, 1, dim=-1) + torch.diff(dy, 1, dim=-2)
     dct_rho = dct.dct_2d(rho, norm='ortho')
-
 
     MX = rho.shape[-2]
     NX = rho.shape[-1]
 
-    I, J = torch.meshgrid(torch.arange(0, MX), torch.arange(0, NX), indexing="ij")
-    I = I.to(rho.device)
-    J = J.to(rho.device)
+    I, J = torch.meshgrid(torch.arange(0, MX, device=device), torch.arange(0, NX, device=device), indexing="ij")
     denom = 2 * (torch.cos(torch.pi * I / MX ) + torch.cos(torch.pi * J / NX ) - 2)
     denom = denom.unsqueeze(0).unsqueeze(0)
-    denom = denom.to(rho.device)
+    denom = denom.to(device)
     dct_phi = dct_rho / denom
     dct_phi[..., 0, 0] = 0
     phi = dct.idct_2d(dct_phi, norm='ortho')
     phi = phi - torch.min(phi)
-    # phi = phi - torch.amin(phi, dim=(-1, -2), keepdim=True)
-    # phi = RD(phi, 1.0)
     return phi
 
 
 def recons(m_t, DO=1, L=1.0, vertical=False, t=0.3):
+    device = m_t.device  # Detectar el dispositivo de m_t
 
     if vertical:
         m_t = m_t.permute(0, 1, 3, 2)
@@ -97,7 +95,7 @@ def recons(m_t, DO=1, L=1.0, vertical=False, t=0.3):
     bl = res
 
     for i in range(DO):
-        bl = unmodulo(bl)
+        bl = unmodulo(bl.to(device))
         bl = RD(bl, L)
 
     x_est = bl
@@ -111,8 +109,6 @@ def recons(m_t, DO=1, L=1.0, vertical=False, t=0.3):
     stripes = stripe_estimation(x_est, t=t)    
     x_est = x_est - stripes
 
-    # if vertical:
-    #     x_est = x_est.permute(0, 1, 3, 2)
     x_est = x_est - x_est.min()
     x_est = x_est / x_est.max()
-    return x_est 
+    return x_est

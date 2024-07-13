@@ -9,3 +9,7 @@ detection_object\Scripts\activate
 
 # Instalar dependencias 
 pip install -r requirements.txt
+
+# Instalar torch con soporte cuda
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+

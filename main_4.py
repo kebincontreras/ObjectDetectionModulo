@@ -140,7 +140,7 @@ def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat
 
 
 if __name__ == "__main__":
-    dataset_dir = "C:\\Users\\braya\\Documents\\kebin\\kitti"
+    dataset_dir = "C:\\Users\\USUARIO\\Desktop\\dataset_eliminar"
     model_id = "yolov10x"
     image_size = 640
     conf_threshold = 0.20
