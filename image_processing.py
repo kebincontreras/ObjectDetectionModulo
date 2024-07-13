@@ -25,29 +25,3 @@ def wrap_image(image, correction, sat_factor):
     return wrapped_image
 
 
-
-
-
-
-
-
-import cv2
-import torch
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-def apply_blur(image, kernel_size):
-    """Aplica desenfoque gaussiano a la imagen."""
-    if device.type == 'cuda' and hasattr(cv2, 'cuda_GaussianBlur'):
-        # Convert image to GPU mat
-        gpu_image = cv2.cuda_GpuMat()
-        gpu_image.upload(image)
-        # Apply GaussianBlur on the GPU
-        blurred_gpu_image = cv2.cuda.GaussianBlur(gpu_image, (kernel_size, kernel_size), 0)
-        # Download the result back to the CPU
-        blurred_image = blurred_gpu_image.download()
-    else:
-        # Apply GaussianBlur on the CPU
-        blurred_image = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
-    return blurred_image
-

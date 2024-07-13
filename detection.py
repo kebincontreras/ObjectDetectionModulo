@@ -1,6 +1,7 @@
 
 from ultralytics import YOLOv10
 import os
+import torch
 
 def yolov10_inference(image, model_id, image_size, conf_threshold):
     model = YOLOv10.from_pretrained(f'jameslahm/{model_id}')
@@ -88,7 +89,8 @@ def save_detections(detections, output_dir, filename='detections.txt'):
 
 
 def yolov10_inference_1(image, model_id, image_size, conf_threshold):
-    model = YOLOv10.from_pretrained(f'jameslahm/{model_id}')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = YOLOv10.from_pretrained(f'jameslahm/{model_id}').to(device)
     results = model.predict(source=image, imgsz=image_size, conf=conf_threshold)
     detections = []
     if results and len(results) > 0:
@@ -151,30 +153,5 @@ def calculate_detection_metrics_1(detections_true, detections_pred):
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
     average_iou = sum(ious) / len(ious) if ious else 0
     return {"Precision": precision, "Recall": recall, "F1-Score": f1_score, "IOU": average_iou}
-
-
-
-
-
-
-
-
-import torch
-
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-def yolov10_inference_2(image, model_id, image_size, conf_threshold):
-    model = YOLOv10.from_pretrained(f'jameslahm/{model_id}').to(device)
-    results = model.predict(source=image, imgsz=image_size, conf=conf_threshold)
-    detections = []
-    if results and len(results) > 0:
-        for result in results:
-            for box in result.boxes:
-                detections.append({
-                    "bbox": box.xyxy.cpu().numpy().tolist(),
-                    "class": result.names[int(box.cls.cpu())]
-                })
-    return results[0].plot() if results and len(results) > 0 else image, detections
 
 

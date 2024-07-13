@@ -1,8 +1,8 @@
 import os
 import gradio as gr
-from image_processing import apply_blur, clip_image, wrap_image, apply_blur_gpu
+from image_processing import apply_blur, clip_image, wrap_image
 from detection import *
-from detection import yolov10_inference, calculate_detection_metrics, save_detections, read_kitti_annotations, yolov10_inference_1, yolov10_inference_2
+from detection import yolov10_inference, calculate_detection_metrics, save_detections, read_kitti_annotations, yolov10_inference_1
 from notacion import map_yolo_classes_to_db
 from PIL import Image
 import numpy as np
@@ -27,7 +27,9 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
     scaling = 1.0
     original_image = cv2.resize(original_image, (0, 0), fx=scaling, fy=scaling)
 
-    blurred_image = apply_blur_gpu(original_image / 255.0, kernel_size)
+
+    blurred_image = apply_blur(original_image / 255.0, kernel_size)
+    #blurred_image = apply_blur_gpu(original_image / 255.0, kernel_size)
     clipped_image = clip_image(blurred_image, correction, sat_factor) 
 
     img_tensor = torch.tensor(blurred_image, dtype=torch.float32).permute(2, 0, 1).unsqueeze(0).to(device)
@@ -36,15 +38,15 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
     wrapped_image = img_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy()
     wrapped_image = (wrapped_image * 255).astype(np.uint8)
 
-    original_annotated, original_detections = yolov10_inference_2(original_image, model_id, image_size, conf_threshold)
-    clipped_annotated, clipped_detections = yolov10_inference_2((clipped_image * 255.0).astype(np.uint8), model_id, image_size, conf_threshold)
-    wrapped_annotated, wrapped_detections = yolov10_inference_2(wrapped_image, model_id, image_size, conf_threshold)
+    original_annotated, original_detections = yolov10_inference_1(original_image, model_id, image_size, conf_threshold)
+    clipped_annotated, clipped_detections = yolov10_inference_1((clipped_image * 255.0).astype(np.uint8), model_id, image_size, conf_threshold)
+    wrapped_annotated, wrapped_detections = yolov10_inference_1(wrapped_image, model_id, image_size, conf_threshold)
 
     # Assuming `recons` is a function in `utils.py`
     recon_image = recons(img_tensor, DO=1, L=1.0, vertical=(vertical == "True"), t=t)
     recon_image_pil = transforms.ToPILImage()(recon_image.squeeze(0).cpu())
     recon_image_np = np.array(recon_image_pil).astype(np.uint8)
-    recon_annotated, recon_detections = yolov10_inference_2(recon_image_np, model_id, image_size, conf_threshold)
+    recon_annotated, recon_detections = yolov10_inference_1(recon_image_np, model_id, image_size, conf_threshold)
 
     original_annotations = read_kitti_annotations(annotations_path)
 
@@ -138,13 +140,13 @@ def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat
 
 
 if __name__ == "__main__":
-    dataset_dir = "C:\\Users\\USUARIO\\Desktop\\dataset_eliminar"
+    dataset_dir = "C:\\Users\\braya\\Documents\\kebin\\kitti"
     model_id = "yolov10x"
     image_size = 640
     conf_threshold = 0.20
     correction = 1
     sat_factor = 1.5
-    kernel_size = 7
+    kernel_size = 3
     DO = "1"
     t = 0.6
     vertical = "True"
