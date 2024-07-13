@@ -9,6 +9,7 @@ detection_object\Scripts\activate
 
 # Instalar dependencias 
 # for PowerShell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 
 .\requirements.bat
 
