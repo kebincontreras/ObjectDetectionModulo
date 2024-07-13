@@ -301,3 +301,8 @@ kebin_detection_object/Scripts/watchfiles.exe
 kebin_detection_object/Scripts/yolo.exe
 kebin_detection_object/share/man/man1/isympy.1
 kebin_detection_object/share/man/man1/ttx.1
+detection_object/Scripts/activate
+detection_object/Scripts/activate.bat
+detection_object/Scripts/pip.exe
+detection_object/Scripts/pip3.10.exe
+detection_object/Scripts/pip3.exe

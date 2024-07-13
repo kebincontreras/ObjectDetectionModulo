@@ -14,7 +14,7 @@ def apply_blur(image, kernel_size):
 
 def clip_image(image, correction, sat_factor):
     """Clips image with saturation factor and correction."""
-    processed_image = np.power(image, correction) * sat_factor
+    processed_image = np.power(image, 1.0) * sat_factor
     clipped_image = np.clip(processed_image, 0, 1)
     return clipped_image
 

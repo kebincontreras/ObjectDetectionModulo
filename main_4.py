@@ -112,7 +112,7 @@ def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correctio
 
 def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, metrics_orig, metrics_clip, metrics_wrap, metrics_recons):
     # Construct the filename using the configuration parameters
-    metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}.txt"
+    metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}_500image.txt"
     metrics_file_path = os.path.join(dataset_dir, metrics_file_name)
     with open(metrics_file_path, 'w') as f:
         f.write("Configuration Parameters:\n")
@@ -143,10 +143,10 @@ if __name__ == "__main__":
     dataset_dir = "C:\\Users\\USUARIO\\Desktop\\dataset_eliminar"
     model_id = "yolov10x"
     image_size = 640
-    conf_threshold = 0.20
+    conf_threshold = 0.70
     correction = 1
-    sat_factor = 1.5
-    kernel_size = 3
+    sat_factor = 3
+    kernel_size = 1
     DO = "1"
     t = 0.6
     vertical = "True"
