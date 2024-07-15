@@ -54,7 +54,7 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
 
     original_annotated, original_detections = yolov10_inference_1(original_image, "yolov10x", image_size, conf_threshold)
     clipped_annotated, clipped_detections = yolov10_inference_1((clipped_image * 255.0).astype(np.uint8), "yolov10s", image_size, conf_threshold)
-    wrapped_annotated, wrapped_detections = yolov10_inference_1(wrapped_image, "yolov10l", image_size, conf_threshold)
+    wrapped_annotated, wrapped_detections = yolov10_inference_1(wrapped_image, "yolov10x", image_size, conf_threshold)
 
     # Assuming `recons` is a function in `utils.py`
     recon_image = recons(img_tensor, DO=1, L=1.0, vertical=(vertical == "True"), t=t)
@@ -150,7 +150,7 @@ if __name__ == "__main__":
     image_size = 640
     conf_threshold = 0.80
     correction = 1
-    sat_factor = 3
+    sat_factor = 1.5
     kernel_size = 7
     DO = "1"
     t = 0.6
