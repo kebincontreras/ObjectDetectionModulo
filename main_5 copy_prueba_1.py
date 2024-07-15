@@ -52,15 +52,15 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
     wrapped_image = img_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy()
     wrapped_image = (wrapped_image * 255).astype(np.uint8)
 
-    original_annotated, original_detections = yolov10_inference_1(original_image, model_id, image_size, conf_threshold)
-    clipped_annotated, clipped_detections = yolov10_inference_1((clipped_image * 255.0).astype(np.uint8), model_id, image_size, conf_threshold)
-    wrapped_annotated, wrapped_detections = yolov10_inference_1(wrapped_image, model_id, image_size, conf_threshold)
+    original_annotated, original_detections = yolov10_inference_1(original_image, "yolov10x", image_size, conf_threshold)
+    clipped_annotated, clipped_detections = yolov10_inference_1((clipped_image * 255.0).astype(np.uint8), "yolov10s", image_size, conf_threshold)
+    wrapped_annotated, wrapped_detections = yolov10_inference_1(wrapped_image, "yolov10l", image_size, conf_threshold)
 
     # Assuming `recons` is a function in `utils.py`
     recon_image = recons(img_tensor, DO=1, L=1.0, vertical=(vertical == "True"), t=t)
     recon_image_pil = transforms.ToPILImage()(recon_image.squeeze(0).cpu())
     recon_image_np = np.array(recon_image_pil).astype(np.uint8)
-    recon_annotated, recon_detections = yolov10_inference_1(recon_image_np, model_id, image_size, conf_threshold)
+    recon_annotated, recon_detections = yolov10_inference_1(recon_image_np, "yolov10x", image_size, conf_threshold)
 
     original_annotations = read_kitti_annotations(annotations_path)
 
@@ -70,7 +70,7 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
 
     image_id = os.path.splitext(os.path.basename(image_path))[0]  # Extrae el identificador de la imagen sin la extensión
     image_dir = os.path.dirname(image_path)  # Obtiene el directorio de la imagen
-    
+    #save_images(image_dir, image_id, original_image, clipped_image, wrapped_image, recon_image_np)
 
     return original_annotations, original_detections, clipped_detections, wrapped_detections, recon_detections
 
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     dataset_dir = "C:\\Users\\USUARIO\\Desktop\\dataset_eliminar"
     model_id = "yolov10x"
     image_size = 640
-    conf_threshold = 0.90
+    conf_threshold = 0.80
     correction = 1
     sat_factor = 3
     kernel_size = 7

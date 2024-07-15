@@ -25,3 +25,44 @@ def wrap_image(image, correction, sat_factor):
     return wrapped_image
 
 
+
+
+import os
+import matplotlib.pyplot as plt
+
+def save_images(image_dir, image_id, original_image, clipped_image, wrapped_image, recon_image_np):
+    # Crea una subcarpeta llamada 'processed_images' dentro de image_dir si no existe
+    processed_dir = os.path.join(image_dir, "processed_images")
+    if not os.path.exists(processed_dir):
+        os.makedirs(processed_dir)
+
+    # Establece la ruta para guardar las imágenes procesadas
+    save_path = os.path.join(processed_dir, f"{image_id}_processed.png")
+    
+    # Crea un subplot con 2x2
+    fig, axs = plt.subplots(2, 2, figsize=(8, 8))
+    
+    # Configura cada subplot
+    axs[0, 0].imshow(original_image)
+    axs[0, 0].set_title("Original")
+    axs[0, 0].axis('off')
+
+    axs[0, 1].imshow(clipped_image)
+    axs[0, 1].set_title("Clipped")
+    axs[0, 1].axis('off')
+
+    axs[1, 0].imshow(wrapped_image)
+    axs[1, 0].set_title("Wrapped")
+    axs[1, 0].axis('off')
+
+    axs[1, 1].imshow(recon_image_np)
+    axs[1, 1].set_title("Reconstructed")
+    axs[1, 1].axis('off')
+
+    # Guarda la figura en la ruta especificada
+    plt.savefig(save_path)
+    plt.close(fig)  # Cierra la figura para liberar memoria
+
+    print(f"Saved processed images to {save_path}")
+
+
