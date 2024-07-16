@@ -64,12 +64,15 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
 
     original_annotations = read_kitti_annotations(annotations_path)
 
-    recon_detections = map_yolo_classes_to_db(recon_detections)
+    original_detections = map_yolo_classes_to_db(original_detections)
     clipped_detections = map_yolo_classes_to_db(clipped_detections)
     wrapped_detections = map_yolo_classes_to_db(wrapped_detections)
+    recon_detections = map_yolo_classes_to_db(recon_detections)
 
     image_id = os.path.splitext(os.path.basename(image_path))[0]  # Extrae el identificador de la imagen sin la extensión
     image_dir = os.path.dirname(image_path)  # Obtiene el directorio de la imagen
+
+    save_images(image_dir, image_id, original_image, clipped_image, wrapped_image, recon_image_np)
     
 
     return original_annotations, original_detections, clipped_detections, wrapped_detections, recon_detections
@@ -148,7 +151,7 @@ if __name__ == "__main__":
     dataset_dir = "C:\\Users\\USUARIO\\Desktop\\dataset_eliminar"
     model_id = "yolov10x"
     image_size = 640
-    conf_threshold = 0.90
+    conf_threshold = 0.60
     correction = 1
     sat_factor = 3
     kernel_size = 7
