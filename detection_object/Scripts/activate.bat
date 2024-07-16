@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\USUARIO\Documents\GitHub\ObjectDetectionModulo\detection_object
+set VIRTUAL_ENV=C:\Users\oke02\Documents\Github\ObjectDetectionModulo\detection_object
 
 if not defined PROMPT set PROMPT=$P$G
 

@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\USUARIO\Documents\GitHub\ObjectDetectionModulo\detection_object"
+VIRTUAL_ENV="C:\Users\oke02\Documents\Github\ObjectDetectionModulo\detection_object"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
