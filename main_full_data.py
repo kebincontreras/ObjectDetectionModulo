@@ -17,17 +17,28 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def calculate_global_metrics(metrics_list):
-    # Initialize an empty dictionary to accumulate sums
+    # Inicializa un diccionario vacío para acumular las sumas de cada métrica
     metrics_sum = {}
+    
+    # Itera sobre cada diccionario de métricas en la lista de métricas
     for metrics in metrics_list:
+        # Itera sobre cada par clave-valor en el diccionario de métricas
         for key, value in metrics.items():
+            # Si la clave no está en el diccionario de sumas, inicialízala a 0
             if key not in metrics_sum:
                 metrics_sum[key] = 0
+            # Suma el valor de la métrica actual a la suma acumulada para esa clave
             metrics_sum[key] += value
-    # Calculate mean for each metric
+    
+    # Calcula la cantidad de diccionarios de métricas
     metrics_count = len(metrics_list)
+    
+    # Calcula la media de cada métrica dividiendo la suma acumulada entre la cantidad de diccionarios
     mean_metrics = {key: value / metrics_count for key, value in metrics_sum.items()}
+    
+    # Devuelve un diccionario con las métricas promediadas
     return mean_metrics
+
 
 
 def process_image(image_path, annotations_path, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical):
@@ -42,7 +53,6 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
     # scaling factor
     scaling = 1.0
     original_image = cv2.resize(original_image, (0, 0), fx=scaling, fy=scaling)
-
 
     blurred_image = apply_blur(original_image / 255.0, kernel_size)
 
@@ -80,37 +90,45 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
 
 
 def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical):
+    # Define los directorios de imágenes y etiquetas dentro del directorio del dataset
     image_dir = os.path.join(dataset_dir, 'image')
     label_dir = os.path.join(dataset_dir, 'label')
 
+    # Inicializa listas para almacenar métricas de detección para diferentes métodos de procesamiento de imágenes
     all_metrics_orig = []
     all_metrics_clip = []
     all_metrics_wrap = []
     all_metrics_recons = []
 
+    # Itera sobre cada nombre de archivo en el directorio de imágenes
     for image_name in os.listdir(image_dir):
-        if image_name.endswith('.png'):
-            image_path = os.path.join(image_dir, image_name)
-            label_path = os.path.join(label_dir, image_name.replace('.png', '.txt'))
+        if image_name.endswith('.png'):  # Procesa solo archivos PNG
+            image_path = os.path.join(image_dir, image_name)  # Obtiene la ruta completa de la imagen
+            label_path = os.path.join(label_dir, image_name.replace('.png', '.txt'))  # Obtiene la ruta completa de la etiqueta correspondiente
 
+            # Procesa la imagen y obtiene las anotaciones y las detecciones para diferentes métodos
             original_annotations, LDR_detections, clipped_detections, wrapped_detections, recon_detections = process_image(
                 image_path, label_path, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical
             )
 
+            # Calcula las métricas de detección para las anotaciones originales y las detecciones procesadas
             metrics_orig = calculate_detection_metrics_1(original_annotations, LDR_detections)
             metrics_clip = calculate_detection_metrics_1(original_annotations, clipped_detections)
             metrics_wrap = calculate_detection_metrics_1(original_annotations, wrapped_detections)
             metrics_recons = calculate_detection_metrics_1(original_annotations, recon_detections)
 
+            # Añade las métricas calculadas a las listas correspondientes
             all_metrics_orig.append(metrics_orig)
             all_metrics_clip.append(metrics_clip)
             all_metrics_wrap.append(metrics_wrap)
             all_metrics_recons.append(metrics_recons)
 
+    # Calcula las métricas globales promediadas de las listas anteriores para cada método 
     global_metrics_orig = calculate_global_metrics(all_metrics_orig)
     global_metrics_clip = calculate_global_metrics(all_metrics_clip)
     global_metrics_wrap = calculate_global_metrics(all_metrics_wrap)
     global_metrics_recons = calculate_global_metrics(all_metrics_recons)
+
 
     save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, global_metrics_orig, global_metrics_clip, global_metrics_wrap, global_metrics_recons)
 
@@ -154,8 +172,8 @@ if __name__ == "__main__":
     image_size = 640
     conf_threshold = 0.60
     correction = 1
-    sat_factor = 3
-    kernel_size = 3
+    sat_factor = 2
+    kernel_size = 7
     DO = "1"
     t = 0.6
     vertical = "True"
