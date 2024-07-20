@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+
 def calculate_global_metrics(metrics_list):
     # Initialize an empty dictionary to accumulate sums
     metrics_sum = {}
@@ -27,6 +28,7 @@ def calculate_global_metrics(metrics_list):
     metrics_count = len(metrics_list)
     mean_metrics = {key: value / metrics_count for key, value in metrics_sum.items()}
     return mean_metrics
+
 
 def process_image(image_path, annotations_path, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical):
     image = Image.open(image_path)
@@ -114,7 +116,7 @@ def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correctio
 
     return global_metrics_orig, global_metrics_clip, global_metrics_wrap, global_metrics_recons
 
-
+ 
 def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, metrics_orig, metrics_clip, metrics_wrap, metrics_recons):
     # Construct the filename using the configuration parameters
     #metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}_7481image_kebin1_final_19_07_2024_final.txt"
