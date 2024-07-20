@@ -172,7 +172,7 @@ if __name__ == "__main__":
     image_size = 640
     conf_threshold = 0.60
     correction = 1
-    sat_factor = 2
+    sat_factor = 5
     kernel_size = 7
     DO = "1"
     t = 0.6
