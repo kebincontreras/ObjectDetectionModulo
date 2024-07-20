@@ -1,4 +1,3 @@
-
 from ultralytics import YOLOv10
 import os
 import torch
@@ -131,6 +130,7 @@ def calculate_iou_1(boxA, boxB):
     return iou
 
 
+'''
 def calculate_detection_metrics_1(detections_true, detections_pred):
     true_positives = 0
     pred_positives = len(detections_pred)
@@ -153,5 +153,64 @@ def calculate_detection_metrics_1(detections_true, detections_pred):
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
     average_iou = sum(ious) / len(ious) if ious else 0
     return {"Precision": precision, "Recall": recall, "F1-Score": f1_score, "IOU": average_iou}
+'''
+
+def calculate_detection_metrics_1(detections_true, detections_pred):
+    true_positives = 0
+    false_positives = 0
+    false_negatives = 0
+    pred_positives = len(detections_pred)
+    real_positives = len(detections_true)
+    ious = []
+    
+    for pred in detections_pred:
+        pred_bbox = pred['bbox']
+        pred_class = pred['class']
+        matched = False
+        for real in detections_true:
+            real_bbox = real['bbox']
+            real_class = real['class']
+            if pred_class == real_class:
+                iou = calculate_iou_1(pred_bbox, real_bbox)
+                if iou >= 0.5:
+                    true_positives += 1
+                    ious.append(iou)
+                    matched = True
+                    break
+        if not matched:
+            false_positives += 1
+    
+    for real in detections_true:
+        real_bbox = real['bbox']
+        real_class = real['class']
+        matched = False
+        for pred in detections_pred:
+            pred_bbox = pred['bbox']
+            pred_class = pred['class']
+            if pred_class == real_class:
+                iou = calculate_iou_1(pred_bbox, real_bbox)
+                if iou >= 0.5:
+                    matched = True
+                    break
+        if not matched:
+            false_negatives += 1
+
+    true_negatives = 0  # Esto normalmente sería difícil de definir en detección de objetos
+    
+    precision = true_positives / pred_positives if pred_positives > 0 else 0
+    recall = true_positives / real_positives if real_positives > 0 else 0
+    f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+    average_iou = sum(ious) / len(ious) if ious else 0
+
+    total_predictions = true_positives + false_positives + false_negatives
+    accuracy = (true_positives + true_negatives) / total_predictions if total_predictions > 0 else 0
+
+    return {
+        "Precision": precision, 
+        "Recall": recall, 
+        "F1-Score": f1_score, 
+        "IOU": average_iou, 
+        "Accuracy": accuracy
+    }
 
 

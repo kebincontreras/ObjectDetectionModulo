@@ -1,4 +1,5 @@
-
+import os
+import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 
@@ -14,7 +15,7 @@ def apply_blur(image, kernel_size):
 
 def clip_image(image, correction, sat_factor):
     """Clips image with saturation factor and correction."""
-    processed_image = np.power(image, 1.0) * sat_factor
+    processed_image = np.power(image, 1.0) * sat_factor * 3
     clipped_image = np.clip(processed_image, 0, 1)
     return clipped_image
 
@@ -24,11 +25,6 @@ def wrap_image(image, correction, sat_factor):
     wrapped_image =  modulo(processed_image, 1.0)
     return wrapped_image
 
-
-
-
-import os
-import matplotlib.pyplot as plt
 
 def save_images(image_dir, image_id, original_image, clipped_image, wrapped_image, recon_image_np):
     # Crea una subcarpeta llamada 'processed_images' dentro de image_dir si no existe

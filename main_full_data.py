@@ -1,6 +1,6 @@
 import os
 import gradio as gr
-from image_processing import apply_blur, clip_image, wrap_image
+from image_processing import apply_blur, clip_image, wrap_image, save_images
 from detection import *
 from detection import yolov10_inference, calculate_detection_metrics, save_detections, read_kitti_annotations, yolov10_inference_1
 from notacion import map_yolo_classes_to_db
@@ -13,45 +13,7 @@ from utils import modulo
 import cv2
 import matplotlib.pyplot as plt
 
-def process_image(image_path, annotations_path, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical):
-    image = Image.open(image_path)
-    original_image = np.array(image)
-    original_image = original_image - original_image.min()
-    original_image = original_image / original_image.max()
-    original_image = original_image * 255.0
-    original_image = original_image.astype(np.uint8)
-
-    # scaling factor
-    scaling = 1.0
-    original_image = cv2.resize(original_image, (0, 0), fx=scaling, fy=scaling)
-
-    blurred_image = apply_blur(original_image / 255.0, kernel_size)
-    clipped_image = clip_image(blurred_image, correction, sat_factor) 
-
-    img_tensor = torch.tensor(blurred_image, dtype=torch.float32 ).permute(2, 0, 1).unsqueeze(0)
-    img_tensor = modulo( img_tensor * sat_factor, L=1.0)
-
-    wrapped_image = img_tensor.squeeze(0).permute(1, 2, 0).numpy()
-    wrapped_image = (wrapped_image*255).astype(np.uint8)
-
-    original_annotated, original_detections = yolov10_inference_1(original_image, model_id, image_size, conf_threshold)
-    clipped_annotated, clipped_detections = yolov10_inference_1((clipped_image*255.0).astype(np.uint8), model_id, image_size, conf_threshold)
-    wrapped_annotated, wrapped_detections = yolov10_inference_1(wrapped_image, model_id, image_size, conf_threshold)
-
-    # Assuming `recons` is a function in `utils.py`
-    recon_image = recons(img_tensor, DO=1, L=1.0, vertical=(vertical == "True"), t=t)
-    recon_image_pil = transforms.ToPILImage()(recon_image.squeeze(0))
-    recon_image_np = np.array(recon_image_pil).astype(np.uint8)
-    recon_annotated, recon_detections = yolov10_inference_1(recon_image_np, model_id, image_size, conf_threshold)
-
-    original_annotations = read_kitti_annotations(annotations_path)
-
-    recon_detections = map_yolo_classes_to_db(recon_detections)
-    clipped_detections = map_yolo_classes_to_db(recon_detections)
-    wrapped_detections = map_yolo_classes_to_db(recon_detections)
-
-    return original_annotations, original_detections, clipped_detections, wrapped_detections, recon_detections
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def calculate_global_metrics(metrics_list):
     # Initialize an empty dictionary to accumulate sums
@@ -65,6 +27,53 @@ def calculate_global_metrics(metrics_list):
     metrics_count = len(metrics_list)
     mean_metrics = {key: value / metrics_count for key, value in metrics_sum.items()}
     return mean_metrics
+
+def process_image(image_path, annotations_path, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical):
+    image = Image.open(image_path)
+    original_image = np.array(image)
+
+    original_image = original_image - original_image.min()
+    original_image = original_image / original_image.max()
+    original_image = original_image * 255.0
+    original_image = original_image.astype(np.uint8)
+
+    # scaling factor
+    scaling = 1.0
+    original_image = cv2.resize(original_image, (0, 0), fx=scaling, fy=scaling)
+
+
+    blurred_image = apply_blur(original_image / 255.0, kernel_size)
+    clipped_image = clip_image(blurred_image, correction, sat_factor) 
+
+    img_tensor = torch.tensor(blurred_image, dtype=torch.float32).permute(2, 0, 1).unsqueeze(0).to(device)
+    img_tensor = modulo(img_tensor * sat_factor, L=1.0)
+
+    wrapped_image = img_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy()
+    wrapped_image = (wrapped_image * 255).astype(np.uint8)
+
+    original_annotated, original_detections = yolov10_inference_1(original_image, model_id, image_size, conf_threshold)
+    clipped_annotated, clipped_detections = yolov10_inference_1((clipped_image * 255.0).astype(np.uint8), model_id, image_size, conf_threshold)
+    wrapped_annotated, wrapped_detections = yolov10_inference_1(wrapped_image, model_id, image_size, conf_threshold)
+
+    recon_image = recons(img_tensor, DO=1, L=1.0, vertical=(vertical == "True"), t=t)
+    recon_image_pil = transforms.ToPILImage()(recon_image.squeeze(0).cpu())
+    recon_image_np = np.array(recon_image_pil).astype(np.uint8)
+    recon_annotated, recon_detections = yolov10_inference_1(recon_image_np, model_id, image_size, conf_threshold)
+
+    original_annotations = read_kitti_annotations(annotations_path)
+
+    original_detections = map_yolo_classes_to_db(original_detections)
+    clipped_detections = map_yolo_classes_to_db(clipped_detections)
+    wrapped_detections = map_yolo_classes_to_db(wrapped_detections)
+    recon_detections = map_yolo_classes_to_db(recon_detections)
+
+    image_id = os.path.splitext(os.path.basename(image_path))[0]  # Extrae el identificador de la imagen sin la extensión
+    image_dir = os.path.dirname(image_path)  # Obtiene el directorio de la imagen
+
+    #save_images(image_dir, image_id, original_image, clipped_image, wrapped_image, recon_image_np)
+    
+
+    return original_annotations, original_detections, clipped_detections, wrapped_detections, recon_detections
 
 
 def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical):
@@ -100,7 +109,6 @@ def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correctio
     global_metrics_wrap = calculate_global_metrics(all_metrics_wrap)
     global_metrics_recons = calculate_global_metrics(all_metrics_recons)
 
-    # Save global metrics to a text file
     save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, global_metrics_orig, global_metrics_clip, global_metrics_wrap, global_metrics_recons)
 
     return global_metrics_orig, global_metrics_clip, global_metrics_wrap, global_metrics_recons
@@ -108,7 +116,8 @@ def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correctio
 
 def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, metrics_orig, metrics_clip, metrics_wrap, metrics_recons):
     # Construct the filename using the configuration parameters
-    metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}.txt"
+    #metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}_7481image_kebin1_final_19_07_2024_final.txt"
+    metrics_file_name = f"prueba_eliminar"
     metrics_file_path = os.path.join(dataset_dir, metrics_file_name)
     with open(metrics_file_path, 'w') as f:
         f.write("Configuration Parameters:\n")
@@ -136,12 +145,13 @@ def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat
 
 
 if __name__ == "__main__":
+    #dataset_dir = "C:\\Users\\USUARIO\\Documents\\GitHub\\Yolov10\\kitti"
     dataset_dir = "C:\\Users\\USUARIO\\Desktop\\dataset_eliminar"
     model_id = "yolov10x"
     image_size = 640
-    conf_threshold = 0.20
+    conf_threshold = 0.60
     correction = 1
-    sat_factor = 1.5
+    sat_factor = 3
     kernel_size = 7
     DO = "1"
     t = 0.6
