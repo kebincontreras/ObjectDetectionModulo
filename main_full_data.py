@@ -67,9 +67,8 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
     wrapped_detections = map_yolo_classes_to_db(wrapped_detections)
     recon_detections = map_yolo_classes_to_db(recon_detections)
 
-    image_id = os.path.splitext(os.path.basename(image_path))[0]  # Extrae el identificador de la imagen sin la extensión
-    image_dir = os.path.dirname(image_path)  # Obtiene el directorio de la imagen
-
+    #image_id = os.path.splitext(os.path.basename(image_path))[0]  # Extrae el identificador de la imagen sin la extensión
+    #image_dir = os.path.dirname(image_path)  # Obtiene el directorio de la imagen
     #save_images(image_dir, image_id, original_image, clipped_image, wrapped_image, recon_image_np)
     
 
