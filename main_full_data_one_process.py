@@ -101,12 +101,14 @@ def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correctio
 
     global_metrics = calculate_global_metrics(all_metrics) if all_metrics else {}
 
-    save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, global_metrics, process_type)
+    save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, global_metrics, process_type, ranges)
 
     return global_metrics
 
-def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, metrics, process_type):
-    metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}_{process_type}_metrics.txt"
+
+def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, metrics, process_type, ranges):
+    range_str = "_".join([f"{start}_{end}" for start, end in ranges])
+    metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}_{process_type}_metrics_{range_str}.txt"
     metrics_file_path = os.path.join(dataset_dir, metrics_file_name)
     with open(metrics_file_path, 'w') as f:
         f.write("Configuration Parameters:\n")
@@ -118,10 +120,12 @@ def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat
         f.write(f"DO: {DO}\n")
         f.write(f"t: {t}\n")
         f.write(f"vertical: {vertical}\n")
+        f.write(f"\nImage Ranges Processed: {', '.join([f'{start}-{end}' for start, end in ranges])}\n")
         f.write("\nGlobal Metrics:\n")
         for key, value in metrics.items():
             f.write(f"{key}: {value}\n")
     print(f"Global metrics and configuration parameters saved to {metrics_file_path}")
+
 
 if __name__ == "__main__":
     dataset_dir = "C:\\Users\\USUARIO\\Documents\\GitHub\\Yolov10\\kitti"
@@ -136,10 +140,10 @@ if __name__ == "__main__":
     vertical = "True"
 
     # Define the ranges of image IDs to process
-    ranges = [('007460', '007462')]  # Add ranges as needed
+    ranges = [('006480', '006482')]
 
     # Specify which process to execute: 'original', 'clip', 'wrap', or 'recon'
-    process_type = 'clip'  # Change this to the desired process type
+    process_type = 'original'  # Change this to the desired process type
 
     global_metrics = process_dataset(
         dataset_dir, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, ranges, process_type
