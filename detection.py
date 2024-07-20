@@ -130,86 +130,88 @@ def calculate_iou_1(boxA, boxB):
     return iou
 
 
-'''
 def calculate_detection_metrics_1(detections_true, detections_pred):
-    true_positives = 0
-    pred_positives = len(detections_pred)
-    real_positives = len(detections_true)
-    ious = []
-    for pred in detections_pred:
-        pred_bbox = pred['bbox']
-        pred_class = pred['class']
-        for real in detections_true:
-            real_bbox = real['bbox']
-            real_class = real['class']
-            if pred_class == real_class:
-                iou = calculate_iou_1(pred_bbox, real_bbox)
-                if iou >= 0.5:
-                    true_positives += 1
-                    ious.append(iou)
-                    break
-    precision = true_positives / pred_positives if pred_positives > 0 else 0
-    recall = true_positives / real_positives if real_positives > 0 else 0
-    f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-    average_iou = sum(ious) / len(ious) if ious else 0
-    return {"Precision": precision, "Recall": recall, "F1-Score": f1_score, "IOU": average_iou}
-'''
-
-def calculate_detection_metrics_1(detections_true, detections_pred):
+    # Inicializa los contadores para verdaderos positivos, falsos positivos y falsos negativos
     true_positives = 0
     false_positives = 0
     false_negatives = 0
+    
+    # Cuenta el número total de predicciones y de detecciones reales
     pred_positives = len(detections_pred)
     real_positives = len(detections_true)
+    
+    # Lista para almacenar los valores de IOU (Intersection over Union)
     ious = []
     
+    # Itera sobre cada predicción
     for pred in detections_pred:
-        pred_bbox = pred['bbox']
-        pred_class = pred['class']
-        matched = False
+        pred_bbox = pred['bbox']  # Obtiene la caja delimitadora de la predicción
+        pred_class = pred['class']  # Obtiene la clase de la predicción
+        matched = False  # Inicializa el indicador de coincidencia
+        
+        # Itera sobre cada detección real
         for real in detections_true:
-            real_bbox = real['bbox']
-            real_class = real['class']
+            real_bbox = real['bbox']  # Obtiene la caja delimitadora de la detección real
+            real_class = real['class']  # Obtiene la clase de la detección real
+            
+            # Compara si la clase predicha coincide con la clase real
             if pred_class == real_class:
-                iou = calculate_iou_1(pred_bbox, real_bbox)
+                iou = calculate_iou_1(pred_bbox, real_bbox)  # Calcula el IOU entre la caja predicha y la real
+                
+                # Si el IOU es mayor o igual a 0.5, cuenta como verdadero positivo
                 if iou >= 0.5:
                     true_positives += 1
-                    ious.append(iou)
-                    matched = True
+                    ious.append(iou)  # Añade el IOU a la lista de IOUs
+                    matched = True  # Marca la predicción como coincidente
                     break
+        
+        # Si no hubo coincidencia, cuenta como falso positivo
         if not matched:
             false_positives += 1
     
+    # Itera sobre cada detección real para contar los falsos negativos
     for real in detections_true:
-        real_bbox = real['bbox']
-        real_class = real['class']
-        matched = False
+        real_bbox = real['bbox']  # Obtiene la caja delimitadora de la detección real
+        real_class = real['class']  # Obtiene la clase de la detección real
+        matched = False  # Inicializa el indicador de coincidencia
+        
+        # Itera sobre cada predicción
         for pred in detections_pred:
-            pred_bbox = pred['bbox']
-            pred_class = pred['class']
+            pred_bbox = pred['bbox']  # Obtiene la caja delimitadora de la predicción
+            pred_class = pred['class']  # Obtiene la clase de la predicción
+            
+            # Compara si la clase predicha coincide con la clase real
             if pred_class == real_class:
-                iou = calculate_iou_1(pred_bbox, real_bbox)
+                iou = calculate_iou_1(pred_bbox, real_bbox)  # Calcula el IOU entre la caja predicha y la real
+                
+                # Si el IOU es mayor o igual a 0.5, cuenta como coincidencia
                 if iou >= 0.5:
-                    matched = True
+                    matched = True  # Marca la detección real como coincidente
                     break
+        
+        # Si no hubo coincidencia, cuenta como falso negativo
         if not matched:
             false_negatives += 1
 
-    true_negatives = 0  # Esto normalmente sería difícil de definir en detección de objetos
+    # Los verdaderos negativos son difíciles de definir en detección de objetos, así que se deja en cero
+    true_negatives = 0
     
+    # Calcula la precisión, el recall, el F1-Score y el IOU promedio
     precision = true_positives / pred_positives if pred_positives > 0 else 0
     recall = true_positives / real_positives if real_positives > 0 else 0
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
     average_iou = sum(ious) / len(ious) if ious else 0
 
+    # Calcula la exactitud
     total_predictions = true_positives + false_positives + false_negatives
     accuracy = (true_positives + true_negatives) / total_predictions if total_predictions > 0 else 0
 
+    # Devuelve un diccionario con las métricas calculadas
     return {
-        "Precision": precision, 
-        "Recall": recall, 
-        "F1-Score": f1_score, 
-        "IOU": average_iou, 
+        "Precision": precision,
+        "Recall": recall,
+        "F1-Score": f1_score,
+        "IOU": average_iou,
         "Accuracy": accuracy
     }
 

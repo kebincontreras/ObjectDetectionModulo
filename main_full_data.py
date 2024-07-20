@@ -43,6 +43,7 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
 
 
     blurred_image = apply_blur(original_image / 255.0, kernel_size)
+
     clipped_image = clip_image(blurred_image, correction, sat_factor) 
 
     img_tensor = torch.tensor(blurred_image, dtype=torch.float32).permute(2, 0, 1).unsqueeze(0).to(device)
