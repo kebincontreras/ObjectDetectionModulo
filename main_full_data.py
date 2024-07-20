@@ -137,8 +137,8 @@ def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correctio
  
 def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, metrics_orig, metrics_clip, metrics_wrap, metrics_recons):
     # Construct the filename using the configuration parameters
-    #metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}_7481image_kebin1_final_19_07_2024_final.txt"
-    metrics_file_name = f"prueba_eliminar"
+    metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}_1000image_20_07_2024.txt"
+    #metrics_file_name = f"prueba_eliminar"
     metrics_file_path = os.path.join(dataset_dir, metrics_file_name)
     with open(metrics_file_path, 'w') as f:
         f.write("Configuration Parameters:\n")
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     image_size = 640
     conf_threshold = 0.60
     correction = 1
-    sat_factor = 5
+    sat_factor = 2
     kernel_size = 7
     DO = "1"
     t = 0.6
@@ -181,6 +181,7 @@ if __name__ == "__main__":
     global_metrics_orig, global_metrics_clip, global_metrics_wrap, global_metrics_recons = process_dataset(
         dataset_dir, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical
     )
+
 
     # Print global metrics
     print("Global Metrics for Original Images:", global_metrics_orig)
