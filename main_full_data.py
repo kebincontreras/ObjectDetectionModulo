@@ -51,7 +51,8 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
     wrapped_image = img_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy()
     wrapped_image = (wrapped_image * 255).astype(np.uint8)
 
-    original_annotated, original_detections = yolov10_inference_1(original_image, model_id, image_size, conf_threshold)
+    original_annotated, LDR_detections = yolov10_inference_1(original_image, model_id, image_size, conf_threshold)
+    #original_annotated, LDR_detections = yolov10_inference_1(blurred_image, model_id, image_size, conf_threshold)
     clipped_annotated, clipped_detections = yolov10_inference_1((clipped_image * 255.0).astype(np.uint8), model_id, image_size, conf_threshold)
     wrapped_annotated, wrapped_detections = yolov10_inference_1(wrapped_image, model_id, image_size, conf_threshold)
 
@@ -62,7 +63,7 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
 
     original_annotations = read_kitti_annotations(annotations_path)
 
-    original_detections = map_yolo_classes_to_db(original_detections)
+    LDR_detections = map_yolo_classes_to_db(LDR_detections)
     clipped_detections = map_yolo_classes_to_db(clipped_detections)
     wrapped_detections = map_yolo_classes_to_db(wrapped_detections)
     recon_detections = map_yolo_classes_to_db(recon_detections)
@@ -72,7 +73,7 @@ def process_image(image_path, annotations_path, model_id, image_size, conf_thres
     #save_images(image_dir, image_id, original_image, clipped_image, wrapped_image, recon_image_np)
     
 
-    return original_annotations, original_detections, clipped_detections, wrapped_detections, recon_detections
+    return original_annotations, LDR_detections, clipped_detections, wrapped_detections, recon_detections
 
 
 def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical):
@@ -89,11 +90,11 @@ def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correctio
             image_path = os.path.join(image_dir, image_name)
             label_path = os.path.join(label_dir, image_name.replace('.png', '.txt'))
 
-            original_annotations, original_detections, clipped_detections, wrapped_detections, recon_detections = process_image(
+            original_annotations, LDR_detections, clipped_detections, wrapped_detections, recon_detections = process_image(
                 image_path, label_path, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical
             )
 
-            metrics_orig = calculate_detection_metrics_1(original_annotations, original_detections)
+            metrics_orig = calculate_detection_metrics_1(original_annotations, LDR_detections)
             metrics_clip = calculate_detection_metrics_1(original_annotations, clipped_detections)
             metrics_wrap = calculate_detection_metrics_1(original_annotations, wrapped_detections)
             metrics_recons = calculate_detection_metrics_1(original_annotations, recon_detections)
@@ -151,7 +152,7 @@ if __name__ == "__main__":
     conf_threshold = 0.60
     correction = 1
     sat_factor = 3
-    kernel_size = 7
+    kernel_size = 3
     DO = "1"
     t = 0.6
     vertical = "True"
