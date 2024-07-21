@@ -108,7 +108,7 @@ def process_dataset(dataset_dir, model_id, image_size, conf_threshold, correctio
 
 def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, metrics, process_type, ranges):
     range_str = "_".join([f"{start}_{end}" for start, end in ranges])
-    metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}_{process_type}_metrics_{range_str}.txt"
+    metrics_file_name = f"sat_{sat_factor}_t_{t}_threshold_{conf_threshold}_kernel_{kernel_size}_{process_type}_metrics_{range_str}_workshop.txt"
     metrics_file_path = os.path.join(dataset_dir, metrics_file_name)
     with open(metrics_file_path, 'w') as f:
         f.write("Configuration Parameters:\n")
@@ -133,17 +133,17 @@ if __name__ == "__main__":
     image_size = 640
     conf_threshold = 0.60
     correction = 1
-    sat_factor = 1.5
+    sat_factor = 2
     kernel_size = 7
     DO = "1"
     t = 0.6
     vertical = "True"
 
     # Define the ranges of image IDs to process
-    ranges = [('006480', '007480')]
+    ranges = [('000715', '000815')]
 
     # Specify which process to execute: 'original', 'clip', 'wrap', or 'recon'
-    process_type = 'clip'  # Change this to the desired process type
+    process_type = 'recon'  # Change this to the desired process type
 
     global_metrics = process_dataset(
         dataset_dir, model_id, image_size, conf_threshold, correction, sat_factor, kernel_size, DO, t, vertical, ranges, process_type
