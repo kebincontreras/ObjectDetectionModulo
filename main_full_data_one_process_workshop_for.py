@@ -132,8 +132,9 @@ def save_metrics_to_txt(dataset_dir, image_size, conf_threshold, correction, sat
 
 if __name__ == "__main__":
     dataset_dir = "C:\\Users\\USUARIO\\Documents\\GitHub\\Yolov10\\kitti"
+    #"yolov10n", "yolov10s", "yolov10m", "yolov10b", "yolov10l", "yolov10x"
     #model_ids = ["yolov10s", "yolov10l", "yolov10x"]
-    model_ids = ["yolov10x"]
+    model_ids = ["yolov10n", "yolov10s", "yolov10m", "yolov10b", "yolov10l"]
     image_size = 640
     conf_threshold = 0.60
     correction = 1
@@ -146,7 +147,7 @@ if __name__ == "__main__":
     ranges = [('000715', '000815')]
 
     # Specify the saturation factors to iterate over
-    sat_factors = [1.5, 3, 4, 5]
+    sat_factors = [1.5, 3, 4, 5, 6]
 
     # Specify the process types to execute
     process_types = ['original', 'clip', 'wrap', 'recon']  # Add or remove process types as needed
