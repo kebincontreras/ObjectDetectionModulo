@@ -37,7 +37,7 @@ def process_image(image, model_id, image_size, conf_threshold, correction, sat_f
     wrapped_image = (wrapped_image*255).astype(np.uint8)
 
     original_annotated, original_detections = yolov10_inference(original_image, model_id, image_size, conf_threshold)
-    clipped_annotated, clipped_detections = yolov10_inference((clipped_image*255.0).astype(np.uint8), model_id, image_size, conf_threshold)
+    clipped_annotated, clipped_detections = yolov10_inference((clipped_image*255.0).astype(np.uint8), "yolov10n", image_size, conf_threshold)
     wrapped_annotated, wrapped_detections = yolov10_inference(wrapped_image, model_id, image_size, conf_threshold)
 
     # Assuming `recons` is a function in `utils.py`
@@ -64,7 +64,7 @@ def app():
                 image_size = gr.Slider(label="Image Size", minimum=320, maximum=1280, step=32, value=640)
                 conf_threshold = gr.Slider(label="Confidence Threshold", minimum=0.0, maximum=1.0, step=0.01, value=0.85)
                 correction = gr.Slider(label="Correction Factor", minimum=0, maximum=1.0, step=0.1, value=1.0)
-                sat_factor = gr.Slider(label="Saturation Factor", minimum=1.0, maximum=5.0, step=0.1, value=2.0)
+                sat_factor = gr.Slider(label="Saturation Factor", minimum=1.0, maximum=10.0, step=1, value=2.0)
                 kernel_size = gr.Slider(label="Blur Kernel Size", minimum=1, maximum=7, step=1, value=7)
                 DO = gr.Radio(label="DO", choices=["1", "2"], value="1")
                 t = gr.Slider(label="t", minimum=0.0, maximum=1.0, step=0.1, value=0.5)
