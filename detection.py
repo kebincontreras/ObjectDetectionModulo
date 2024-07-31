@@ -74,7 +74,7 @@ def save_detections(detections, output_dir, filename='detections.txt'):
             file.write(f"{class_label},[{bbox}]\n")
 
 
-
+'''
 def yolov10_inference_1(image, model_id, image_size, conf_threshold):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = YOLOv10.from_pretrained(f'jameslahm/{model_id}').to(device)
@@ -91,6 +91,26 @@ def yolov10_inference_1(image, model_id, image_size, conf_threshold):
                     "bbox": box.xyxy.cpu().numpy().tolist()
                 })
     return results[0].plot() if results and len(results) > 0 else image, detections
+'''
+
+import time
+
+def yolov10_inference_1(image, model_id, image_size, conf_threshold):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = YOLOv10.from_pretrained(f'jameslahm/{model_id}').to(device)
+    start_time = time.time()  # Comienza a medir el tiempo
+    results = model.predict(source=image, imgsz=image_size, conf=conf_threshold)
+    inference_time = time.time() - start_time  # Calcula el tiempo de inferencia
+    detections = []
+    if results and len(results) > 0:
+        for result in results:
+            for box in result.boxes:
+                detections.append({
+                    "bbox": box.xyxy.cpu().numpy().tolist()
+                })
+    return results[0].plot() if results and len(results) > 0 else image, detections, inference_time
+    #return detections, inference_time
+
 
 
 def calculate_iou_1(boxA, boxB):
