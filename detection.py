@@ -75,18 +75,6 @@ def save_detections(detections, output_dir, filename='detections.txt'):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 def yolov10_inference_1(image, model_id, image_size, conf_threshold):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = YOLOv10.from_pretrained(f'jameslahm/{model_id}').to(device)

@@ -147,14 +147,15 @@ if __name__ == "__main__":
     vertical = "True"
 
     # Define the ranges of image IDs to process
-    ranges = [('007470', '007485')]
+    ranges = [('007465', '007485')]
 
     # Specify the saturation factors to iterate over
     #sat_factors = [1.5, 3, 4, 5, 6]
     sat_factors = [3]
 
     # Specify the process types to execute
-    process_types = ['original', 'clip', 'wrap', 'recon']  # Add or remove process types as needed
+    #process_types = ['original', 'clip', 'wrap', 'recon'] 
+    process_types = ['clip', 'recon']  
 
     global_metrics = process_dataset(
         dataset_dir, model_ids, image_size, conf_threshold, correction, sat_factors, kernel_size, DO, t, vertical, ranges, process_types
