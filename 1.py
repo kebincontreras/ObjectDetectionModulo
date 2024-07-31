@@ -84,6 +84,6 @@ if __name__ == "__main__":
     correction = 1
     kernel_size = 7
     sat_factor = 2
-    ranges = [('007460', '007485')]  # Rango de imágenes a procesar
+    ranges = [('007480', '007485')]  # Rango de imágenes a procesar
 
     process_dataset(dataset_dir, image_size, conf_threshold, correction, sat_factor, kernel_size, ranges)
